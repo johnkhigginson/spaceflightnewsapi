@@ -104,3 +104,20 @@ class TestNewsItemAdminChangelist:
 
         assert "<script>alert(1)</script>" not in content
         assert "&lt;script&gt;alert(1)&lt;/script&gt; 0" in content
+
+
+@pytest.mark.django_db
+class TestJetModelLookup:
+    """The filters' select2 search goes through jet's model lookup view."""
+
+    @pytest.mark.parametrize("relation", FILTERS)
+    def test_search_returns_matching_item(
+        self, admin_client: Client, related_items: dict[str, list], relation: str
+    ) -> None:
+        wanted = related_items[relation][1]
+        model = wanted._meta.model_name
+
+        response = admin_client.get("/v4/jet/model_lookup/", {"app_label": "api", "model": model, "q": wanted.name})
+
+        assert response.status_code == 200
+        assert response.json()["items"] == [{"id": wanted.pk, "text": str(wanted)}]

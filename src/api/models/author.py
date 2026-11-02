@@ -1,3 +1,5 @@
+from typing import Literal
+
 from django.db import models
 
 from api.models.socials import Socials
@@ -9,3 +11,7 @@ class Author(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @staticmethod
+    def autocomplete_search_fields() -> tuple[Literal["name"],]:
+        return ("name",)
